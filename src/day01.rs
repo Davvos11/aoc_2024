@@ -1,5 +1,27 @@
+use std::fs::File;
+use std::io;
+use std::io::BufRead;
 use std::path::PathBuf;
 
 pub fn day01(input: &PathBuf) -> String {
-    String::new()
+    let file = File::open(input).expect(&format!("Can't open file {:?}", input));
+    let reader = io::BufReader::new(file);
+
+    let mut list1 = Vec::new();
+    let mut list2 = Vec::new();
+    
+    // Read columns into sorted sets
+    for line in reader.lines() {
+        let line = line.unwrap(); 
+        let mut split = line.split_whitespace();
+        list1.push(split.next().unwrap().parse::<u64>().unwrap());
+        list2.push(split.next().unwrap().parse::<u64>().unwrap());
+    }
+    
+    list1.sort();
+    list2.sort();
+
+    let result: u64 = list1.iter().zip(list2.iter()).map(|(&a, &b)| a.abs_diff(b)).sum() ;
+    
+    format!("Part one: {result}")
 }

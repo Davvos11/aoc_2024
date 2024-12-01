@@ -23,7 +23,7 @@ impl Day {
 
 fn main() {
     let days = vec![
-        Day::new(1, "puzzles/day01.txt", vec!["puzzles/example01.txt"], Box::new(day01)),
+        Day::new(1, "puzzles/day01.txt", vec!["puzzles/example01a.txt"], Box::new(day01)),
     ];
     for day in days {
         let func = &day.function;
@@ -31,12 +31,12 @@ fn main() {
             eprintln!("Day {}: example {i}", day.number);
             let t = Instant::now();
             let solution =  func(test);
-            eprintln!("\tSolution:{solution}\tTook:{:3.2?}", t.elapsed());
+            eprintln!("\tSolution: {solution}\tTook:{:3.2?}", t.elapsed());
         }
         eprintln!("Day {}", day.number);
         let t = Instant::now();
         let solution = func(&day.input);
-        eprintln!("\tSolution:{solution}\tTook:{:3.2?}", t.elapsed());
+        eprintln!("\tSolution: {solution}\tTook:{:3.2?}", t.elapsed());
         eprintln!()
     }
 }
