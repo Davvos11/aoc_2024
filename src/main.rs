@@ -14,7 +14,10 @@ struct Cli {
     day: Option<usize>,
     /// Run the latest day
     #[arg(long, default_value_t = false)]
-    latest: bool
+    latest: bool,
+    /// Debug mode: only run examples
+    #[arg(long, default_value_t = false)]
+    debug: bool
 }
 
 struct Day {
@@ -32,8 +35,8 @@ impl Day {
 
         let test_filename = format!("puzzles/example{number:02}*.txt");
         let test_matches = glob(&test_filename).unwrap();
-        let tests = test_matches.into_iter().map(|m|m.unwrap()).collect();
-        Box::new(Self {number, input, tests, function})
+        let tests = test_matches.into_iter().map(|m| m.unwrap()).collect();
+        Box::new(Self { number, input, tests, function })
     }
 }
 
@@ -43,35 +46,38 @@ fn main() {
         Day::new(1, Box::new(day01)),
         Day::new(2, Box::new(day02)),
     ];
-    
+
     let args = Cli::parse();
-    
+
     if args.latest {
         eprintln!("Running latest day:");
-        benchmark(days.last().unwrap());
+        benchmark(days.last().unwrap(), &args);
         return;
     }
-    
+
     if let Some(num) = args.day {
         eprintln!("Running day {num}:");
-        benchmark(&days[num-1]);
+        benchmark(&days[num - 1], &args);
         return;
     }
-    
+
     eprintln!("Running all days:");
     for day in days {
-        benchmark(&day)
+        benchmark(&day, &args);
     }
 }
 
-fn benchmark(day: &Day) {
+fn benchmark(day: &Day, args: &Cli) {
     let func = &day.function;
     eprintln!("Day {}:", day.number);
     for (i, test) in day.tests.iter().enumerate() {
         let t = Instant::now();
-        let solution =  func(test);
-        eprintln!("\t Example {i}\tSolution: {solution}\tTook:{:3.2?}", t.elapsed());
+        let solution = func(test);
+        eprintln!("\t Example {}\tSolution: {solution}\tTook:{:3.2?}", i + 1, t.elapsed());
     }
+    
+    if args.debug { return; }
+    
     let t = Instant::now();
     let solution = func(&day.input);
     eprintln!("\t Puzzle\t\tSolution: {solution}\tTook:{:3.2?}", t.elapsed());

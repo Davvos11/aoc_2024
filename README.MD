@@ -7,7 +7,7 @@ Put puzzles and examples in the `puzzles` folder.
 ## Usage
 To run all days:
 ```shell
-cargo run --release
+cargo run --release --
 ```
 To run latest day:
 ```shell
@@ -17,3 +17,5 @@ To run day x:
 ```shell
 cargo run --release -- x
 ```
+Additionally, you can provide `--debug` to only run the examples
+of a day and skip running the full input.
