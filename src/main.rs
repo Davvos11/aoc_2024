@@ -1,10 +1,12 @@
 mod day01;
+mod day02;
 
 use crate::day01::day01;
 use glob::glob;
 use std::path::PathBuf;
 use std::time::Instant;
 use clap::Parser;
+use crate::day02::day02;
 
 #[derive(Parser)]
 struct Cli {
@@ -39,6 +41,7 @@ impl Day {
 fn main() {
     let days = vec![
         Day::new(1, Box::new(day01)),
+        Day::new(2, Box::new(day02)),
     ];
     
     let args = Cli::parse();
