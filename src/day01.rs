@@ -24,16 +24,13 @@ pub fn day01(input: &PathBuf) -> String {
 
     let part1: u64 = list1.iter().zip(list2.iter()).map(|(&a, &b)| a.abs_diff(b)).sum();
 
-    let mut part2 = 0;
-
     let counts2 = list2.iter()
         .fold(HashMap::new(), |mut m, x| {
             m.entry(x).and_modify(|x| *x += 1).or_insert(1);
             m
         });
-    for number1 in list1 {
-        part2 += number1 * counts2.get(&number1).unwrap_or(&0);
-    }
+
+    let part2: u64 = list1.iter().map(|number1| number1 * counts2.get(&number1).unwrap_or(&0)).sum();
 
     format!("Part one: {part1}\t Part two: {part2}")
 }
