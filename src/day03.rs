@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::Read;
 use std::path::PathBuf;
+use crate::day03::Token::{Do, Dont, Mul};
 
 pub fn day03(input: &PathBuf) -> String {
     let mut file = File::open(input).expect(&format!("Can't open file {:?}", input));
@@ -17,12 +18,34 @@ pub fn day03(input: &PathBuf) -> String {
         parse_string = tail;
     }
 
-    let part1: u64 = instructions.iter().map(|(a, b)| a * b).sum();
+    // Part 1: just sum all multiplications
+    let part1: u64 = instructions.iter()
+        .filter_map(|t| if let Mul(a, b) = t { Some((a, b)) } else { None })
+        .map(|(a, b)| a * b).sum();
+    
+    // Part 2: sum multiplications if enabled. Do or Dont toggle enabled
+    // abuse a fold to do this :)
+    let (_, part2) = instructions.iter()
+        .fold((true, 0), |(enabled, sum), t| {
+            match t {
+                Mul(a, b) => {
+                    if enabled { (enabled, sum + a * b) } else { (enabled, sum) }
+                }
+                Do => { (true, sum) }
+                Dont => { (false, sum) }
+            }
+        });
 
-    format!("Part one: {part1} \t Part two: ")
+    format!("Part one: {part1} \t Part two: {part2}")
 }
 
-fn parse(string: &str) -> (Option<(u64, u64)>, &str) {
+enum Token {
+    Mul(u64, u64),
+    Do,
+    Dont,
+}
+
+fn parse(string: &str) -> (Option<Token>, &str) {
     let mut num1 = Vec::new();
     let mut num2 = Vec::new();
     let mut first = true;
@@ -46,13 +69,17 @@ fn parse(string: &str) -> (Option<(u64, u64)>, &str) {
                 } else {
                     let result1 = num1.into_iter().collect::<String>().parse().unwrap();
                     let result2 = num2.into_iter().collect::<String>().parse().unwrap();
-                    return (Some((result1, result2)), &string[4 + i..]);
+                    return (Some(Mul(result1, result2)), &string[4 + i..]);
                 }
             } else {
                 return (None, &string[4 + i..]);
             }
         }
         (None, "")
+    } else if string.starts_with("do()") {
+        (Some(Do), &string[4..])
+    } else if string.starts_with("don't()") {
+        (Some(Dont), &string[7..])
     } else {
         (None, &string[1..])
     }
