@@ -50,7 +50,7 @@ impl Grid {
 fn simulate(grid: &Grid, initial_direction: (i32, i32), initial_position: (usize, usize),
             positions: &mut HashSet<(usize, usize)>,
             obstacle_options: &mut HashSet<(usize, usize)>,
-            new_obstacle: Option<(usize, usize)>,
+            extra_obstacle: Option<(usize, usize)>,
 ) -> bool {
     let mut finished = false;
     let mut direction = initial_direction;
@@ -59,7 +59,7 @@ fn simulate(grid: &Grid, initial_direction: (i32, i32), initial_position: (usize
     let mut positions_with_dir = HashSet::new();
 
     while !finished {
-        let next_pos = if let Some(next_pos) = get_next_obstacle(&grid.grid, direction, position, new_obstacle) {
+        let next_pos = if let Some(next_pos) = get_next_obstacle(&grid.grid, direction, position, extra_obstacle) {
             next_pos
         } else {
             finished = true;
@@ -74,10 +74,14 @@ fn simulate(grid: &Grid, initial_direction: (i32, i32), initial_position: (usize
                 return true;
             }
 
-            // If we didn't already add an obstacle and if this position has not been tried yet
-            if new_obstacle.is_none() && tried_obstacle_options.insert((intermediate_pos, direction)) {
-                // Try if inserting here will give a loop
+            // If we didn't already add an obstacle
+            if extra_obstacle.is_none() {
                 let new_obstacle = get_offset(intermediate_pos, direction, 1);
+                // If we didn't already try this obstacle position
+                if !tried_obstacle_options.insert(new_obstacle) {
+                    continue;
+                }
+                // Try if inserting here will give a loop
                 let simulation = simulate(grid, initial_direction, initial_position, &mut HashSet::new(), obstacle_options, Some(new_obstacle));
                 if simulation {
                     // If the new situation contains a loop, this is a valid obstacle location
