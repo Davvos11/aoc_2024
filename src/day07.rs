@@ -24,11 +24,12 @@ pub fn day07(input: &PathBuf) -> String {
     let mut part2 = 0;
 
     for (result, parts) in equations {
-        let possible1 = operator_permutations(result, &parts, None, false);
-        let possible2 = operator_permutations(result, &parts, None, true);
-        // println!("{result}: {:?}, {:?}", operator_permutations_debug(result, &parts, String::new()), possible );
-        if possible1 { part1 += result }
-        if possible2 { part2 += result }
+        if operator_permutations(result, &parts, None, false) {
+            part1 += result;
+        }
+        if operator_permutations(result, &parts, None, true) {
+            part2 += result;
+        }
     }
 
 
@@ -45,18 +46,22 @@ fn operator_permutations(goal: u64, parts: &[u64], current: Option<u64>, part2: 
         parts = &parts[1..];
         c
     });
-    let choose_plus = operator_permutations(goal, &parts[1..], Some(current + parts[0]), part2);
-    let choose_times = operator_permutations(goal, &parts[1..], Some(current * parts[0]), part2);
+
+    // Optimisation to abort early
+    if current >= goal { return false; }
+
+    let result =
+        operator_permutations(goal, &parts[1..], Some(current + parts[0]), part2)
+            || operator_permutations(goal, &parts[1..], Some(current * parts[0]), part2);
     if part2 {
-        let choose_concat = operator_permutations(goal, &parts[1..], Some(concat(current, parts[0])), part2);
-        // Combine the three options
-        choose_plus || choose_times || choose_concat
+        result || operator_permutations(goal, &parts[1..], Some(concat(current, parts[0])), part2)
     } else {
-        // Combine the two options
-        choose_plus || choose_times
+        result
     }
 }
 
+#[allow(unused)]
+/// Used for me to get some intuition :)
 fn operator_permutations_debug(goal: u64, parts: &[u64], current: String) -> Vec<String> {
     if parts.is_empty() {
         return vec![current];
