@@ -80,5 +80,6 @@ fn operator_permutations_debug(goal: u64, parts: &[u64], current: String) -> Vec
 }
 
 fn concat(a: u64, b: u64) -> u64 {
-    format!("{a}{b}").parse().unwrap()
+    let b_digits = (b as f64).log10().floor() as u32 + 1;
+    a * 10u64.pow(b_digits) + b
 }
