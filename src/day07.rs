@@ -21,18 +21,21 @@ pub fn day07(input: &PathBuf) -> String {
     }
 
     let mut part1 = 0;
+    let mut part2 = 0;
 
     for (result, parts) in equations {
-        let possible = operator_permutations(result, &parts, None);
+        let possible1 = operator_permutations(result, &parts, None, false);
+        let possible2 = operator_permutations(result, &parts, None, true);
         // println!("{result}: {:?}, {:?}", operator_permutations_debug(result, &parts, String::new()), possible );
-        if possible { part1 += result }
+        if possible1 { part1 += result }
+        if possible2 { part2 += result }
     }
 
 
-    format!("Part one: {part1}\t Part two: ")
+    format!("Part one: {part1}\t Part two: {part2}")
 }
 
-fn operator_permutations(goal: u64, parts: &[u64], current: Option<u64>) -> bool {
+fn operator_permutations(goal: u64, parts: &[u64], current: Option<u64>, part2: bool) -> bool {
     if parts.is_empty() {
         return current.unwrap_or(0) == goal;
     }
@@ -42,10 +45,16 @@ fn operator_permutations(goal: u64, parts: &[u64], current: Option<u64>) -> bool
         parts = &parts[1..];
         c
     });
-    let choose_plus = operator_permutations(goal, &parts[1..], Some(current + parts[0]));
-    let choose_times = operator_permutations(goal, &parts[1..], Some(current * parts[0]));
-    // Combine the two options
-    choose_plus || choose_times
+    let choose_plus = operator_permutations(goal, &parts[1..], Some(current + parts[0]), part2);
+    let choose_times = operator_permutations(goal, &parts[1..], Some(current * parts[0]), part2);
+    if part2 {
+        let choose_concat = operator_permutations(goal, &parts[1..], Some(concat(current, parts[0])), part2);
+        // Combine the three options
+        choose_plus || choose_times || choose_concat
+    } else {
+        // Combine the two options
+        choose_plus || choose_times
+    }
 }
 
 fn operator_permutations_debug(goal: u64, parts: &[u64], current: String) -> Vec<String> {
@@ -60,6 +69,11 @@ fn operator_permutations_debug(goal: u64, parts: &[u64], current: String) -> Vec
     }
     let choose_plus = operator_permutations_debug(goal, &parts[1..], format!("{current} + {}", parts[0]));
     let choose_times = operator_permutations_debug(goal, &parts[1..], format!("{current} * {}", parts[0]));
-    // Combine the two options
-    choose_plus.into_iter().chain(choose_times).collect()
+    let choose_concat = operator_permutations_debug(goal, &parts[1..], format!("{current}{}", parts[0]));
+    // Combine the three options
+    choose_plus.into_iter().chain(choose_times).chain(choose_concat).collect()
+}
+
+fn concat(a: u64, b: u64) -> u64 {
+    format!("{a}{b}").parse().unwrap()
 }
