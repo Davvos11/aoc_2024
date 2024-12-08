@@ -13,12 +13,12 @@ pub fn day08(input: &PathBuf) -> String {
         .map(|l| l.unwrap().chars().collect())
         .collect();
 
-    let part01 = part01(&grid);
+    let (part01, part02) = solve(&grid);
 
-    format!("Part one: {part01}\t Part two: ")
+    format!("Part one: {part01}\t Part two: {part02}")
 }
 
-fn part01(grid: &[Vec<char>]) -> usize {
+fn solve(grid: &[Vec<char>]) -> (usize, usize) {
     let rows = grid.len() as isize;
     let cols = grid[0].len() as isize;
 
@@ -36,7 +36,8 @@ fn part01(grid: &[Vec<char>]) -> usize {
 
     // println!("{antennae:?}");
 
-    let mut antinodes = HashSet::new();
+    let mut antinodes1 = HashSet::new();
+    let mut antinodes2 = HashSet::new();
 
     for (c, coords) in antennae {
         // Loop through all possible pairs
@@ -44,15 +45,14 @@ fn part01(grid: &[Vec<char>]) -> usize {
             // println!("{coords:?}");
             for &(y2, x2) in coords[i + 1..].iter() {
                 let distance = (y2 - y1, x2 - x1);
-                if y1 + distance.0 == y2 && x1 + distance.1 == x2 {
-                    let one = (y1 - distance.0, x1 - distance.1);
-                    let two = (y2 + distance.0, x2 + distance.1);
-                    if !coords.contains(&one) {
-                        antinodes.insert(one);
-                    }
-                    if !coords.contains(&two) {
-                        antinodes.insert(two);
-                    }
+                // Part1: add antinodes at equal distance 
+                let one = (y1 - distance.0, x1 - distance.1);
+                let two = (y2 + distance.0, x2 + distance.1);
+                if !coords.contains(&one) { antinodes1.insert(one); }
+                if !coords.contains(&two) { antinodes1.insert(two); }
+                // Part 2: keep adding antinodes at equal distances in line
+                for antinode in get_coords(y1, x1, distance, rows, cols) {
+                    antinodes2.insert(antinode);
                 }
             }
         }
@@ -60,7 +60,31 @@ fn part01(grid: &[Vec<char>]) -> usize {
 
     // println!("{:?}", antinodes.iter().sorted().map(|(y,x)| (y, x)));
 
-    antinodes.iter()
+    let part1 = antinodes1.iter()
         .filter(|(y, x)| *y >= 0 && *y < rows && *x >= 0 && *x < cols)
-        .count()
+        .count();
+    let part2 = antinodes2.len();
+
+    (part1, part2)
+}
+
+fn get_coords(y0: isize, x0: isize, (dist_y, dist_x): (isize, isize), rows: isize, cols: isize) -> Vec<(usize, usize)> {
+    let mut result = Vec::new();
+    let mut y = y0;
+    let mut x = x0;
+    
+    while y >= 0 && y < rows && x >= 0 && x < cols {
+        result.push((y as usize, x as usize));
+        y -= dist_y;
+        x -= dist_x;
+    }
+    y = y0 + dist_y;
+    x = x0 + dist_x;
+    while y >= 0 && y < rows && x >= 0 && x < cols {
+        result.push((y as usize, x as usize));
+        y += dist_y;
+        x += dist_x;
+    }
+    
+    result
 }
