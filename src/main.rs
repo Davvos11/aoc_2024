@@ -5,6 +5,7 @@ mod day04;
 mod day05;
 mod day06;
 mod day07;
+mod day08;
 
 use crate::day01::day01;
 use glob::glob;
@@ -17,6 +18,7 @@ use crate::day04::day04;
 use crate::day05::day05;
 use crate::day06::day06;
 use crate::day07::day07;
+use crate::day08::day08;
 
 #[derive(Parser)]
 struct Cli {
@@ -60,6 +62,7 @@ fn main() {
         Day::new(5, Box::new(day05)),
         Day::new(6, Box::new(day06)),
         Day::new(7, Box::new(day07)),
+        Day::new(8, Box::new(day08)),
     ];
 
     let args = Cli::parse();
