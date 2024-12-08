@@ -18,4 +18,17 @@ To run day x:
 cargo run --release -- x
 ```
 Additionally, you can provide `--debug` to only run the examples
-of a day and skip running the full input.
+of a day and skip running the full input.  
+Or you can provide `--puzzle-only` to only run the full input and no examples.
+
+# Benchmarks:
+```
+Day 1           252.11µs
+Day 2           442.99µs
+Day 3           161.42µs
+Day 4           2.24ms
+Day 5           4.00ms
+Day 6           2.84s
+Day 7           66.22ms
+Day 8           265.85µs
+```

@@ -29,7 +29,10 @@ struct Cli {
     latest: bool,
     /// Debug mode: only run examples
     #[arg(long, default_value_t = false)]
-    debug: bool
+    debug: bool,
+    /// Only run actual inputs, no examples
+    #[arg(long, default_value_t = false)]
+    puzzle_only: bool,
 }
 
 struct Day {
@@ -87,17 +90,20 @@ fn main() {
 
 fn benchmark(day: &Day, args: &Cli) {
     let func = &day.function;
-    eprintln!("Day {}:", day.number);
-    for (i, test) in day.tests.iter().enumerate() {
-        let t = Instant::now();
-        let solution = func(test);
-        eprintln!("\t Example {}\tSolution: {solution}\tTook:{:3.2?}", i + 1, t.elapsed());
+    if !args.puzzle_only {
+        eprintln!("Day {}:", day.number);
+        for (i, test) in day.tests.iter().enumerate() {
+            let t = Instant::now();
+            let solution = func(test);
+            eprintln!("\tExample {}\tSolution: {solution}\tTook:{:3.2?}", i + 1, t.elapsed());
+        }
     }
-    
+
     if args.debug { return; }
-    
+
     let t = Instant::now();
     let solution = func(&day.input);
-    eprintln!("\t Puzzle\t\tSolution: {solution}\tTook:{:3.2?}", t.elapsed());
-    eprintln!()
+    let prefix = if args.puzzle_only { format!("Day {}", day.number) } else { "\tPuzzle".into() };
+    eprintln!("{prefix}\t\tSolution: {solution}\tTook:{:3.2?}", t.elapsed());
+    if !args.puzzle_only { eprintln!() }
 }
