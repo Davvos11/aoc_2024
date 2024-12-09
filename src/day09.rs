@@ -57,17 +57,14 @@ pub fn day09(input: &PathBuf) -> String {
             if let Some(&empty_idx) = spaces.iter()
                 .find(|(_, size)| *size >= length)
                 .map(|(empty_idx, _)| empty_idx) {
-                if empty_idx < item_idx {
                     // Move items there
                     for j in 0..length {
                         disk2[item_idx + j] = None;
                         disk2[empty_idx + j] = Some(current);
                     }
                     // Update lookup
-                    spaces = collect_empty_spaces(&disk2);
-                }
+                    spaces = collect_empty_spaces(&disk2[..item_idx]);
             }
-            // print_disk(&disk2);
         }
         if item != current {
             current = item;
