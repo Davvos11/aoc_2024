@@ -20,18 +20,18 @@ pub fn day10(input: &PathBuf) -> String {
 
     let mut map = Map::new(&grid);
     let mut part1 = 0;
+    let mut part2 = 0;
     // For each 0 tile
     for (y, x) in grid.iter().enumerate()
         .flat_map(|(y, row)| {
             row.iter().enumerate().filter(|&(_, &h)| h == 0).map(move |(x, _)| (y, x))
         }) {
-        let score = map.get_trail_ends(y, x, 0);
-        // println!("{},{}: {}\t{:?}", y+1, (b'a' + x as u8) as char, score.len(), score.iter().map(|(y,x)| (y+1, (b'a' + *x as u8) as char)).collect_vec());
-        part1 += score.len();
+        part1 += map.get_trail_ends(y, x, 0).len();
+        part2 += map.get_trails(y, x, 0);
         map.reset_visited();
     }
 
-    format!("Part one: {part1}\t Part two: ")
+    format!("Part one: {part1}\t Part two: {part2}")
 }
 
 struct Map<'a> {
@@ -69,7 +69,28 @@ impl<'a> Map<'a> {
                         } else {
                             result.extend(self.get_trail_ends(y_new, x_new, h));
                         }
-                        // println!("{y_new} {x_new} = {h}: {result}");
+                    }
+                }
+            }
+        }
+
+        result
+    }
+
+    pub fn get_trails(&mut self, y: usize, x: usize, current_h: u32) -> u32 {
+        let mut result = 0;
+
+        // Check all directions for a one higher number
+        for (d_y, d_x) in DIRS {
+            if let (Some(y_new), Some(x_new)) = (y.checked_add_signed(d_y), x.checked_add_signed(d_x)) {
+                if let Some(&h) = self.grid.get(y_new).and_then(|row| row.get(x_new)) {
+                    if h == current_h + 1 {
+                        // Otherwise calculate and recurse
+                        if h == 9 {
+                            result += 1;
+                        } else {
+                            result += self.get_trails(y_new, x_new, h);
+                        }
                     }
                 }
             }
