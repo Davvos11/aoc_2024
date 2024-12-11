@@ -33,4 +33,5 @@ Day 7           66.22ms
 Day 8           265.85µs
 Day 9           2.03s
 Day 10          1.84ms
+Day 11          32.32ms
 ```
